@@ -1,31 +1,25 @@
 import express from "express";
 import dotenv from "dotenv";
-import authRoutes from "./routes/auth.route.js";
-import messageRoutes from "./routes/message.route.js";
+import aurthRoutes from "./routes/auth.route.js";
+import messageRoute from "./routes/message.route.js";
 import path from "path";
-import { fileURLToPath } from "url";
-
 dotenv.config();
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 
-// API routes
-app.use("/api/auth", authRoutes);
-app.use("/api/message", messageRoutes);
+app.use("/api/auth/", aurthRoutes);
+app.use("/api/message", messageRoute);
 
-// Serve frontend build in production
 if (process.env.NODE_ENV === "production") {
-  const distPath = path.resolve(__dirname, "../../frontend/dist");
-  app.use(express.static(distPath));
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
-  });
+  app.use(express.static(path.join(__dirname, "../forntend/dist")));
+  app.get("*", (req, res) =>
+    res.sendFile(apth.join(__dirname, "../frontend", "dist", "index.html"))
+  );
 }
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`server is running on port: http://localhost:${port}`);
 });
