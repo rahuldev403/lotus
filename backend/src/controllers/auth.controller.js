@@ -1,6 +1,7 @@
-import User from "../models/user.model";
+import { sendWelcomeEmail } from "../emails/emailHandler.js";
+import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
-
+import "dotenv/config";
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
@@ -34,6 +35,16 @@ export const signup = async (req, res) => {
         profilePic: newUser.profilePic,
       });
       //send a welcome email to user
+
+      try {
+        await sendWelcomeEmail(
+          savedUser.email,
+          savedUser.fullName,
+          process.env.CLIENT_URL
+        );
+      } catch (error) {
+        console.log("failed to send welcome email", error);
+      }
     } else {
       return res.status(400).json({ message: "user creation failed" });
     }
