@@ -8,15 +8,15 @@ dotenv.config();
 const app = express();
 const __dirname = path.resolve();
 
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 app.use("/api/auth/", aurthRoutes);
 app.use("/api/message", messageRoute);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../forntend/dist")));
-  app.get("*", (req, res) =>
-    res.sendFile(apth.join(__dirname, "../frontend", "dist", "index.html"))
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.get("*", (_, res) =>
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"))
   );
 }
 
