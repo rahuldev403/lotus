@@ -8,6 +8,7 @@ import { ENV } from "./lib/env.js";
 import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
+import fs from "fs";
 
 const app = express();
 const server = http.createServer(app);
@@ -60,15 +61,35 @@ app.set("io", io);
 app.set("onlineUsers", onlineUsers);
 
 // Routes
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    message: "Lotus API is running",
+    docs: "/api",
+    endpoints: ["/api/auth", "/api/message"],
+  });
+});
+
+// optional health endpoint for uptime checks
+app.get("/healthz", (_req, res) => {
+  res.status(200).json({ status: "ok", uptime: process.uptime() });
+});
+
 app.use("/api/auth/", authRoutes);
 app.use("/api/message", messageRoute);
 
 // Serve static files in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-  app.get("*", (_, res) =>
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"))
-  );
+  const distDir = path.join(__dirname, "../frontend", "dist");
+  const indexHtml = path.join(distDir, "index.html");
+
+  if (fs.existsSync(indexHtml)) {
+    app.use(express.static(distDir));
+    app.get("*", (_, res) => res.sendFile(indexHtml));
+  } else {
+    console.warn(
+      `Frontend build not found at ${indexHtml}. Skipping static file serving.`
+    );
+  }
 }
 
 server.listen(port, () => {

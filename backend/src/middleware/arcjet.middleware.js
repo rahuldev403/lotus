@@ -1,4 +1,4 @@
-import aj from "../lib/arcjet.js";
+import getArcjet from "../lib/arcjet.js";
 import { isSpoofedBot } from "@arcjet/inspect";
 import { ENV } from "../lib/env.js";
 
@@ -9,6 +9,9 @@ export const arcjetProtection = async (req, res, next) => {
   }
 
   try {
+    const aj = getArcjet();
+    if (!aj) return next();
+
     const decision = await aj.protect(req);
 
     // Check for spoofed bots first

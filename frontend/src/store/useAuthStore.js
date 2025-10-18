@@ -3,7 +3,7 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
-// Socket base URL: use explicit VITE_SOCKET_URL if provided, else fall back to same-origin in prod and localhost in dev
+// Socket base URL: prefer VITE_SOCKET_URL; fallback to localhost in dev and same-origin in prod
 const BASE_URL =
   (import.meta.env.VITE_SOCKET_URL && import.meta.env.VITE_SOCKET_URL.trim()) ||
   (import.meta.env.MODE === "development" ? "http://localhost:3000" : "/");
