@@ -12,4 +12,6 @@ router.post("/signup", signup);
 router.post("/signin", login);
 router.post("/signout", logOut);
 router.put("/update-profile", protectRoute, updateProfile);
+router.get("/check", (req, res) => res.status(200).json(req.user));
+
 export default router;
