@@ -40,7 +40,7 @@ export const sendMessage = async (req, res) => {
     const senderId = req.user._id;
 
     if (!text && !image) {
-      return res.status(400).json({ message: "Text or iamge is required" });
+      return res.status(400).json({ message: "Text or image is required" });
     }
     if (senderId.equals(receiverId)) {
       return res
@@ -63,6 +63,23 @@ export const sendMessage = async (req, res) => {
       image: imageUrl,
     });
     await newMessage.save();
+
+    // Send message via socket.io to receiver
+    const io = req.app.get("io");
+    const onlineUsers = req.app.get("onlineUsers");
+    const receiverSocketId = onlineUsers.get(receiverId.toString());
+    const senderSocketId = onlineUsers.get(senderId.toString());
+
+    // Emit to receiver if online
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("newMessage", newMessage);
+    }
+
+    // Also emit to sender if they have the chat open in another tab/device
+    if (senderSocketId && senderSocketId !== receiverSocketId) {
+      io.to(senderSocketId).emit("newMessage", newMessage);
+    }
+
     res.status(201).json(newMessage);
   } catch (error) {
     console.log("error in sending message:", error);

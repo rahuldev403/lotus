@@ -1,7 +1,13 @@
 import aj from "../lib/arcjet.js";
 import { isSpoofedBot } from "@arcjet/inspect";
+import { ENV } from "../lib/env.js";
 
 export const arcjetProtection = async (req, res, next) => {
+  // Skip Arcjet if key is not configured
+  if (!ENV.ARCJET_KEY || ENV.ARCJET_KEY === "your_arcjet_key") {
+    return next();
+  }
+
   try {
     const decision = await aj.protect(req);
 
@@ -32,7 +38,7 @@ export const arcjetProtection = async (req, res, next) => {
     // Request is allowed, continue to next middleware
     next();
   } catch (error) {
-    console.log("Arcjet protection error:", error);
+    console.log("Arcjet protection error:", error.message);
     // On error, allow the request to continue (fail open)
     next();
   }
