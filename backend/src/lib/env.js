@@ -6,7 +6,10 @@ export const ENV = {
   JWT_SECRET: process.env.JWT_SECRET,
   NODE_ENV: process.env.NODE_ENV,
   // Prefer explicit CLIENT_URL, otherwise use RENDER_EXTERNAL_URL on Render, else undefined
-  CLIENT_URL: process.env.CLIENT_URL || process.env.RENDER_EXTERNAL_URL,
+  CLIENT_URL:
+    process.env.CLIENT_URL || "https://lotus-frontend-beige.vercel.app",
+  // Optional: comma-separated list of allowed origins for CORS
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   EMAIL_FROM: process.env.EMAIL_FROM,
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME,

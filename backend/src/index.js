@@ -13,9 +13,34 @@ import fs from "fs";
 const app = express();
 const server = http.createServer(app);
 
+// Build allowed origins list for CORS (Express + Socket.IO)
+const defaultOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:5173",
+];
+const productionOrigins = [
+  // known deployed frontend
+  "https://lotus-frontend-beige.vercel.app",
+];
+
+const envOrigins = (ENV.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+const allowedOrigins = Array.from(
+  new Set([
+    ...(ENV.NODE_ENV === "development" ? defaultOrigins : []),
+    ...productionOrigins,
+    ...(ENV.CLIENT_URL ? [ENV.CLIENT_URL] : []),
+    ...envOrigins,
+  ])
+);
+
 const io = new Server(server, {
   cors: {
-    origin: ENV.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   },
 });
@@ -25,7 +50,25 @@ app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: ENV.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // allow requests with no origin like mobile apps or curl
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+  })
+);
+
+// Handle preflight for all routes explicitly (needed by some hosts/proxies)
+app.options(
+  "*",
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );

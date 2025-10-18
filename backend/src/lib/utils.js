@@ -11,7 +11,8 @@ export const generateToken = (userId, res) => {
   res.cookie("jwt", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: "strict",
+    // For cross-site cookies (Vercel -> Render), sameSite must be 'none' and secure must be true
+    sameSite: ENV.NODE_ENV === "development" ? "lax" : "none",
     secure: ENV.NODE_ENV !== "development",
   });
 };
