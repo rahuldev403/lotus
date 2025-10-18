@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: lotus-chat
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    autoDeploy: true
+
+    # Environment variables for the backend (configure values in Render dashboard or here)
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        # Optional. When omitted, backend will fall back to RENDER_EXTERNAL_URL at runtime.
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: EMAIL_FROM_NAME
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ARCJET_KEY
+        sync: false
+      - key: ARCJET_ENV
+        sync: false
